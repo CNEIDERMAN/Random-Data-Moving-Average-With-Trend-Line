@@ -1,0 +1,91 @@
+import matplotlib.pyplot as plt
+import random
+import numpy as np
+# x-axis 100ct
+xAxis = []
+for i in range(0, 1000):
+    xAxis.append(i)
+    i += 1
+# y-axis random
+yAxis = []
+for i in range(0, 1000):
+    r = random.randint(0, 100)
+    yAxis.append(r)
+    i += 1
+# x-axis 99ct
+x2Axis = []
+for i in range(0, 990):
+    x2Axis.append(i)
+    i += 1
+# y-axis with 2-unit moving average
+global y2Axis
+y2Axis = []
+
+
+def ma2u(y1, y2):
+    uu = (y1 + y2)/2
+    y2Axis.append(uu)
+
+
+for i in range(990):
+    ma2u(yAxis[i], yAxis[i + 1])
+# x-axis 90ct
+x10Axis = []
+for i in range(900):
+    x10Axis.append(i)
+    i += 1
+# y-axis with 10-unit moving average
+global y10Axis
+y10Axis = []
+
+
+def ma10u(y1, y2, y3, y4, y5, y6, y7, y8, y9, y10):
+    u10 = (y1 + y2 + y3 + y4 + y5 + y6 + y7 + y8 + y9 + y10)/10
+    y10Axis.append(u10)
+
+
+for i in range(900):
+    ma10u(yAxis[i], yAxis[i + 1], yAxis[i + 2], yAxis[i + 3], yAxis[i + 4],
+          yAxis[i + 5], yAxis[i + 6], yAxis[i + 8], yAxis[i + 9], yAxis[i + 10])
+# regression lines
+
+
+def tabu10(q, t):
+    qa = sum(q)/900
+    ta = sum(t)/900
+    qqa = []
+    tta = []
+    table = []
+    for i in range(900):
+        qqa.append(q[i] - qa)
+        tta.append(t[i] - ta)
+    qta = list(np.multiply(qqa, tta))
+    q4a = list(np.multiply(qqa, qqa))
+    slope = sum(qta) / sum(q4a)
+    intercept = ta - (slope * qa)
+    table.append(slope)
+    table.append(intercept)
+    return table
+
+
+table10 = tabu10(x10Axis, y10Axis)
+
+m = np.linspace(0, 1000, 1000)
+n = table10[0] * m + table10[1]
+print("slope: " + str(table10[0]) + " intercept: " + str(table10[1]))
+
+# plot
+x = xAxis
+z = x2Axis
+b = x10Axis
+y = yAxis
+a = y2Axis
+c = y10Axis
+plt.title("Random Data Moving Averages With Trend Line")
+
+plt.scatter(x, y, color="blue", s=1, label="raw data")
+plt.scatter(z, a, color="red", s=1, label="2-unit moving average")
+plt.scatter(b, c, color="green", s=1, label="10-unit moving average")
+plt.plot(m, n, color="green", label="trend line")
+plt.legend(bbox_to_anchor=(-0.1, 1.125), prop={"size": 4}, loc="upper left")
+plt.show()
